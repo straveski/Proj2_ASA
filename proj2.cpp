@@ -3,47 +3,62 @@
 #include <algorithm>
 using namespace std;
 
-//Vertices para descobrir os ancestrais
-vertex v1, v2;
-
-// N -> numero de vertices M -> numero de arcos
-int N = 0, M = 0;
+int buildGraph();
+int checkGraph();
 
 //graph
-vector<vertex> graph;
+int** graph;
 
-//estrutura de um vértice
-typedef struct Vertex{
-    //pais de um vertice
-    vector<vertex> fathers;
-    //lista de filhos do vertice
-    vector<vertex> childrens;
-    int id;
-} *vertex;
+//Vertices para descobrir os ancestrais
+int v1, v2;
 
-
+// N -> numero de vertices M -> numero de arcos
+int N, M;
 
 int main(){
-    buildGraph();
+    int g = buildGraph();
+    if (g == -1){
+        cout << "0" << endl;
+        return 0; 
+    }
+    cout << "2" << endl;
     return 0;
 }
 
 int buildGraph(){
-    cin >> v1->id >> v2->id;
+    cin >> v1 >> v2;
     cin >> N >> M;
-    //inicializar o grafo com todos os vertices a NULL
-    for(int i = 0; i < N; i++){
-        graph[i] = NULL;
+    graph = (int**)malloc((N+1) * sizeof(int*));
+    // cada vetor do grafo vai ter PAI1|PA2|N PAIS|COR
+    for(int i = 1; i < N+1; i++){
+        graph[i] = (int*)malloc(4 * sizeof(int));
+        for(int j=0; j<4; j++){
+            graph[i][j] = 0;
+        }
     }
-    for(int i = 0; i < M; i++){
-        vertex u,v;
-        cin >> u->id >> v->id;
-        (u->childrens).push_back(v);
-        if ((v->fathers).size() == 2)
-            return -1;
-        (v->fathers).push_back(u);
-
+    int error;
+   for(int i = 0; i < M; i++){
+        int ftr, cld;
+        cin >> ftr >> cld;
+        int n_pais = graph[cld][2];
+        //filho tem mais de 2 pais
+        if (n_pais == 2)
+            error = -1;
+        //atualizo o novo pai
+        graph[cld][n_pais] = ftr;
+        //atualizo o numero de pais
+        graph[cld][2]++;
     }
+    if(error == -1)
+        return -1;
+    if (checkGraph() == -1){
+        return -1;
+    }
+    else
+        return 0;
+}
 
+int checkGraph(){
 
+    return 0;
 }
