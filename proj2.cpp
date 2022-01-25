@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
 using namespace std;
 
 int buildGraph();
 int checkGraphCycles();
 int checkCycle(int node);
-void DFS(int node, int flag);
+void DFS(int node, int flag, int depth);
 
 //graph
 int** graph;
@@ -18,26 +19,43 @@ int v1, v2;
 // N -> numero de vertices M -> numero de arcos
 int N, M;
 
+// unordered map para guardar os tamanhos da dfs do v2
+unordered_map<int,int> depth_v2;
+
 int main(){
     int g = buildGraph();
     if (g == -1){
         printf("0\n");
         return 0; 
     }
-    DFS(v1,1);
-    DFS(v2,2);
+    int depth = 0;
+    DFS(v1,1,depth);
+    depth = 0;
+    DFS(v2,2, depth);
     int anc = 0;
     for(int i = 1; i < N+1; i++){
         if(graph[i][3] == 2)
             anc = i;
     }
 
-    /*for(int i = 1; i < N+1; i++){
+    for(int i = 1; i < N+1; i++){
         for(int j = 0; j < 4; j++){
             printf("%d ", graph[i][j]);
         }
         printf("\n");
-    }*/
+    }
+    printf("\n");
+    for(int i = 1; i < N+1; i++){
+        printf("%d ", graph[0][i]);
+    }
+    printf("\n");
+    
+    for(int i = 1; i< N+1;i++){
+        if(graph[i][3] == 2){
+            printf("%d     %d ",i ,depth_v2[i]);
+        }
+    }
+    printf("\n");
 
     printf("%d \n",anc);
     return 0;
@@ -123,7 +141,7 @@ int checkCycle(int node){
     return 0;
 }
 
-void DFS(int node, int flag){
+void DFS(int node, int flag, int depth){
     graph[node][3]++;
     for(int i = 0; i < 2; i++){
         int pai = graph[node][i];
@@ -132,12 +150,18 @@ void DFS(int node, int flag){
             break;
         }
         else if(flag == 1){
-            if(graph[pai][3] == 0)
-                DFS(pai,1);
+            if(graph[pai][3] == 0){
+                depth++;
+                graph[0][pai] = depth;
+                DFS(pai,1,depth);
+            }
         }
         else if(flag == 2){
-            if(graph[pai][3] == 0 ||graph[pai][3] == 1)
-                DFS(pai,2);
+            if(graph[pai][3] == 0 ||graph[pai][3] == 1){
+                depth++;
+                depth_v2[pai] = depth;
+                DFS(pai,2,depth);
+            }
         }
     }
 }
