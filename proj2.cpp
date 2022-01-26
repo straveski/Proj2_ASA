@@ -8,7 +8,8 @@ using namespace std;
 int buildGraph();
 int checkGraphCycles();
 int checkCycle(int node);
-void DFS(int node, int flag, int depth);
+void DFS(int node, int flag);
+int lowestAncestor();
 
 //graph
 int** graph;
@@ -19,8 +20,10 @@ int v1, v2;
 // N -> numero de vertices M -> numero de arcos
 int N, M;
 
-// unordered map para guardar os tamanhos da dfs do v2
-unordered_map<int,int> depth_v2;
+// vetor dos ancestrais de v1 e v2
+vector<int> anc;
+vector<int> res;
+
 
 int main(){
     int g = buildGraph();
@@ -28,38 +31,15 @@ int main(){
         printf("0\n");
         return 0; 
     }
-    int depth = 0;
-    DFS(v1,1,depth);
-    depth = 0;
-    DFS(v2,2, depth);
-    int anc = 0;
-    for(int i = 1; i < N+1; i++){
-        if(graph[i][3] == 2)
-            anc = i;
-    }
+    DFS(v1,1);
+    DFS(v2,2);
 
-    for(int i = 1; i < N+1; i++){
-        for(int j = 0; j < 4; j++){
-            printf("%d ", graph[i][j]);
-        }
-        printf("\n");
-    }
+    int res = lowestAncestor();
+    if(res == 0)
+        printf("-");
     printf("\n");
-    for(int i = 1; i < N+1; i++){
-        printf("%d ", graph[0][i]);
-    }
-    printf("\n");
-    
-    for(int i = 1; i< N+1;i++){
-        if(graph[i][3] == 2){
-            printf("%d     %d ",i ,depth_v2[i]);
-        }
-    }
-    printf("\n");
-
-    printf("%d \n",anc);
     return 0;
-}
+} 
 
 int buildGraph(){
     if(scanf("%d%d", &v1, &v2)){};
@@ -141,7 +121,7 @@ int checkCycle(int node){
     return 0;
 }
 
-void DFS(int node, int flag, int depth){
+void DFS(int node, int flag){
     graph[node][3]++;
     for(int i = 0; i < 2; i++){
         int pai = graph[node][i];
@@ -151,17 +131,47 @@ void DFS(int node, int flag, int depth){
         }
         else if(flag == 1){
             if(graph[pai][3] == 0){
-                depth++;
-                graph[0][pai] = depth;
-                DFS(pai,1,depth);
+                DFS(pai,1);
             }
         }
         else if(flag == 2){
             if(graph[pai][3] == 0 ||graph[pai][3] == 1){
-                depth++;
-                depth_v2[pai] = depth;
-                DFS(pai,2,depth);
+                DFS(pai,2);
             }
         }
     }
+    if(graph[node][3] == 2)
+        anc.push_back(node);
+}
+
+int lowestAncestor(){
+    int ancestor;
+    int flag,flag2=0, pai;
+    for(int i = 0; i < (int)anc.size(); i++){
+        flag = 0;
+        ancestor = anc[i];
+        for(int j = 1; j < N+1; j++){
+            for(int t = 0; t < graph[j][2]; t++){
+                pai = graph[j][t];
+                if(pai == ancestor){
+                    if(graph[j][3] == 2)
+                        flag++;
+                }
+            }
+        }
+        if(flag == 0){
+            flag2++;
+            res.push_back(ancestor);
+        }
+    }
+    sort(res.begin(), res.end());
+    /*for(int i = 0; i < (int)anc.size(); i++){
+        printf("%d ", anc[i]);
+    }
+    printf("\n");*/
+    for(int i = 0; i < (int)res.size(); i++){
+        printf("%d ", res[i]);
+    }
+
+    return flag2;
 }
