@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
 using namespace std;
 
 int buildGraph();
 int checkGraphCycles();
 int checkCycle(int node);
 void DFS(int node, int flag);
+void DFS2(int node);
 int lowestAncestor();
 
 //graph
@@ -34,9 +34,11 @@ int main(){
     DFS(v1,1);
     DFS(v2,2);
 
-    int res = lowestAncestor();
-    if(res == 0)
+    int r = lowestAncestor();
+
+    if(r == 0)
         printf("-");
+
     printf("\n");
     return 0;
 } 
@@ -49,7 +51,7 @@ int buildGraph(){
     graph[0] = (int*)malloc((N+1) * sizeof(int));
     for(int i = 0; i < N+1; i++)
         graph[0][i] = 0;
-    // cada vetor do grafo vai ter PAI1|PAI2|N PAIS|NVISITED
+    // cada vetor do grafo vai ter PAI1|PAI2|N PAIS|COR
     for(int i = 1; i < N+1; i++){
         graph[i] = (int*)malloc(4 * sizeof(int));
         for(int j=0; j<4; j++){
@@ -123,13 +125,12 @@ int checkCycle(int node){
 
 void DFS(int node, int flag){
     graph[node][3]++;
-    for(int i = 0; i < 2; i++){
+    if(graph[node][3] == 2){
+        anc.push_back(node);
+    }
+    for(int i = 0; i < graph[node][2]; i++){
         int pai = graph[node][i];
-        // se n pai tiver para
-        if(pai == 0){
-            break;
-        }
-        else if(flag == 1){
+        if(flag == 1){
             if(graph[pai][3] == 0){
                 DFS(pai,1);
             }
@@ -140,38 +141,44 @@ void DFS(int node, int flag){
             }
         }
     }
-    if(graph[node][3] == 2)
-        anc.push_back(node);
 }
 
 int lowestAncestor(){
     int ancestor;
-    int flag,flag2=0, pai;
     for(int i = 0; i < (int)anc.size(); i++){
-        flag = 0;
+        printf("%d %d\n", anc[i], graph[anc[i]][3]);
+    }
+    printf("\n");
+    for(int i = 0; i < (int)anc.size(); i++){
         ancestor = anc[i];
-        for(int j = 1; j < N+1; j++){
-            for(int t = 0; t < graph[j][2]; t++){
-                pai = graph[j][t];
-                if(pai == ancestor){
-                    if(graph[j][3] == 2)
-                        flag++;
-                }
-            }
-        }
-        if(flag == 0){
-            flag2++;
+        if (graph[ancestor][3] == 2)
+            DFS2(ancestor);
+    }
+
+    for(int i = 0; i < (int)anc.size(); i++){
+        ancestor = anc[i];
+        if(graph[ancestor][3] == 2){
             res.push_back(ancestor);
         }
     }
+
+    if(res.size() == 0) return 0;
+
     sort(res.begin(), res.end());
-    /*for(int i = 0; i < (int)anc.size(); i++){
-        printf("%d ", anc[i]);
-    }
-    printf("\n");*/
+
     for(int i = 0; i < (int)res.size(); i++){
         printf("%d ", res[i]);
     }
+    return 1;
+}
 
-    return flag2;
+void DFS2(int node){
+    graph[0][node] = 1;
+    for(int i = 0; i < graph[node][2]; i++){
+        int pai = graph[node][i];
+        if(graph[pai][3] == 2){
+            graph[pai][3]--;
+        }
+        DFS2(pai);
+    }
 }
