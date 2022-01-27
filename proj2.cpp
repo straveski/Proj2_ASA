@@ -4,6 +4,11 @@
 #include <algorithm>
 using namespace std;
 
+#define WHITE 0
+#define BLACK 3
+#define RED 1
+#define GREEN 2
+
 int buildGraph();
 int checkGraphCycles();
 int checkCycle(int node);
@@ -93,10 +98,10 @@ int checkGraphCycles(){
             }
         }
     }
-    //volta a meter as entradas das visitas de DFS e dos vertices a 0
+    //volta a meter as entradas das visitas de DFS e dos vertices a branco
     for(int i=1; i < N+1; i++){
         graph[0][i] = 0;
-        graph[i][3] = 0;
+        graph[i][3] = WHITE;
     }
     return 0;
 }
@@ -124,22 +129,23 @@ int checkCycle(int node){
 }
 
 void DFS(int node, int flag){
-    graph[node][3]++;
-    if(graph[node][3] == 2){
-        anc.push_back(node);
+    if(flag == 1){
+        if(graph[node][3] == WHITE) graph[node][3] = RED;
+    }
+    else if(flag == 2){
+        if(graph[node][3] == WHITE) graph[node][3] = GREEN;
+        if(graph[node][3] == RED) graph[node][3] = BLACK;
+    }
+    if(graph[node][3] == BLACK){
+        //se estiver a preto e ainda n tiver sido visitado, para n repetir elementos nos ancestrais
+        if(graph[0][node] == 0){
+            anc.push_back(node);
+            graph[0][node] = 1;
+        }
     }
     for(int i = 0; i < graph[node][2]; i++){
         int pai = graph[node][i];
-        if(flag == 1){
-            if(graph[pai][3] == 0){
-                DFS(pai,1);
-            }
-        }
-        else if(flag == 2){
-            if(graph[pai][3] == 0 ||graph[pai][3] == 1){
-                DFS(pai,2);
-            }
-        }
+        DFS(pai,flag);
     }
 }
 
@@ -173,7 +179,6 @@ int lowestAncestor(){
 }
 
 void DFS2(int node){
-    graph[0][node] = 1;
     for(int i = 0; i < graph[node][2]; i++){
         int pai = graph[node][i];
         if(graph[pai][3] == 2){
