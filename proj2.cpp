@@ -152,18 +152,14 @@ void DFS(int node, int flag){
 int lowestAncestor(){
     int ancestor;
     for(int i = 0; i < (int)anc.size(); i++){
-        printf("%d %d\n", anc[i], graph[anc[i]][3]);
-    }
-    printf("\n");
-    for(int i = 0; i < (int)anc.size(); i++){
         ancestor = anc[i];
-        if (graph[ancestor][3] == 2)
+        if (graph[ancestor][3] == BLACK)
             DFS2(ancestor);
     }
 
     for(int i = 0; i < (int)anc.size(); i++){
         ancestor = anc[i];
-        if(graph[ancestor][3] == 2){
+        if(graph[ancestor][3] == BLACK){
             res.push_back(ancestor);
         }
     }
@@ -181,8 +177,8 @@ int lowestAncestor(){
 void DFS2(int node){
     for(int i = 0; i < graph[node][2]; i++){
         int pai = graph[node][i];
-        if(graph[pai][3] == 2){
-            graph[pai][3]--;
+        if(graph[pai][3] == BLACK){
+            graph[pai][3] = WHITE;
         }
         DFS2(pai);
     }
